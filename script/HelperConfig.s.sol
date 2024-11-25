@@ -13,6 +13,9 @@ contract HelperConfig is Script{
     //If  we are on local anvil chain, deploy mocks
     //Otherwise grab the existing addres from the live network
     NetworkConfig public activeNetworkConfig;
+    //Variables are used so that we can understand what are they. No to magic numbers lol
+    uint8 public constant DECIMALS = 8;
+    int256 public constant INITIAL_ANSWER = 2000e8; 
 
     struct NetworkConfig {
         address priceFeed;
@@ -24,7 +27,7 @@ contract HelperConfig is Script{
         } else if(block.chainid==1){
            activeNetworkConfig =  getMainnetEthConfig();
         }else{
-            activeNetworkConfig = getAnvilEthConfig();
+            activeNetworkConfig = getOrCreateAnvilEthConfig();
         }
 
     }
@@ -45,7 +48,12 @@ contract HelperConfig is Script{
         return mainnetConfig;
     }
 
-    function getAnvilEthConfig() public returns(NetworkConfig memory){ //not pure function, 
+    function getOrCreateAnvilEthConfig() public returns(NetworkConfig memory){ //not pure function, 
+        //If we already created mocks do not do it again
+        if(activeNetworkConfig.priceFeed != address(0)){
+            return activeNetworkConfig;
+        }
+
         //1. Create mocks
         //2. Return mock address
 
@@ -53,7 +61,7 @@ contract HelperConfig is Script{
         vm.startBroadcast();
         //By looking at constructor() in ../test/mocks/MockV3Aggregator.sol file,
         //we know how to create MockV3Aggregator type
-        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(8, 2000e8);
+        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(DECIMALS, INITIAL_ANSWER);
         vm.stopBroadcast();
 
         NetworkConfig memory anvilConfig = NetworkConfig({
