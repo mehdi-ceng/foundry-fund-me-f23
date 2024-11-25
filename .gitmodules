@@ -3,3 +3,6 @@
 	url = https://github.com/foundry-rs/forge-std
 [submodule "chainlink-brownie-contracts"]
 	url = git@github.com:smartcontractkit/chainlink-brownie-contracts.git
+[submodule "lib/foundry-devops"]
+	path = lib/foundry-devops
+	url = https://github.com/Cyfrin/foundry-devops
